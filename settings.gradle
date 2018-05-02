@@ -1,0 +1,3 @@
+rootProject.name = 'common-source-identification-cashmere-native'
+
+include 'clFFT', 'libjpeg-turbo', 'util'

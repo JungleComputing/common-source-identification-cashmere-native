@@ -1,0 +1,30 @@
+
+task cmake(type:Exec) {
+    project.buildDir.mkdirs()
+    commandLine = ['cmake', "-DCMAKE_INSTALL_PREFIX=${project.buildDir}/install", 
+		   "-DOpenCL_LIBRARY:FILEPATH=/cm/shared/apps/cuda90/toolkit/9.0.176/lib64/libOpenCL.so",
+		   "$project.rootDir/clFFT/clFFT/src"]
+    workingDir = project.buildDir
+    inputs.file("clFFT/src/CMakeLists.txt")
+    inputs.file("clFFT/src/clFFTConfig.cmake.in")
+    inputs.file("clFFT/src/clFFTConfigVersion.cmake.in")
+    inputs.file("FindclFFT.cmake");
+    inputs.file("FindFFTW.cmake");
+    inputs.file("gtest.cmake");
+    outputs.files(fileTree(project.buildDir) {
+		      include "**/*.cmake"
+		  });
+    outputs.files(fileTree(project.buildDir) {
+		      include "**/Makefile"
+		  });
+    outputs.file("${project.buildDir}/include/clFFT.version.h")
+}
+
+task buildNative(type:Exec, group: "Build native code", description: "Assembles this project") {
+    commandLine = ['make', 'install']
+    workingDir = project.buildDir
+    inputs.files(fileTree("clFFT/src"))
+    inputs.files cmake.outputs
+    outputs.files file("${project.buildDir}/install/lib64/libclFFT.so")
+}
+

@@ -1,0 +1,139 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.0'
+}
+
+
+version = '0.1.0'
+
+def pomConfig = {
+    scm {
+        url "https://github.com/JungleComputing/common-source-identification-cashmere-native.git"
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+configurations {
+    jocl
+}
+
+dependencies {
+    implementation 'nl.junglecomputing.cashmere:jocl:2.0.1'
+    implementation 'nl.junglecomputing.cashmere:cashmere:0.2.0'
+    jocl 'nl.junglecomputing.cashmere:jocl:2.0.1'
+}
+
+repositories {
+    jcenter()
+    maven() {
+        // for sbbi-upnplib
+	url 'http://maven.nuiton.org/release'
+    }
+}
+
+jar.dependsOn(':clFFT:buildNative')
+jar.dependsOn(':libjpeg-turbo:buildNative')
+jar.dependsOn(':util:buildNative')
+
+jar {
+    def suffix = "-csicn-${version}.so"
+    into("lib") {
+    	from("${project(':clFFT').buildDir}/install/lib64") {
+    	    include 'libclFFT.so'
+	    rename 'libclFFT.so', "libclFFT${suffix}"
+    	}
+	from("${project(':libjpeg-turbo').buildDir}/libjpeg-turbo-1.5.2/.libs") {
+    	    include 'libjpeg.so'
+    	    rename 'libjpeg.so', "libjpeg${suffix}"
+	}
+	from("${project(':util').buildDir}") {
+    	    include 'libutil.so'
+    	    rename 'libutil.so', "libutil${suffix}"
+	}
+    }
+}
+
+task copyJOCL(type:Copy) {
+    def dir = 'lib'
+    def file = 'libJOCL_2_0_0-linux-x86_64.so'
+    def fullpath = "$dir/$file"
+    from({ zipTree(configurations.jocl.singleFile) }) {
+        include fullpath
+    }
+    eachFile { fcd ->
+	println fcd.path
+	fcd.path = fcd.path.replaceAll(~/lib\/(.*)/, '$1')
+	println fcd.path
+    }
+    into project(':util').buildDir
+}
+
+
+task genFFTHeader(type:Exec) {
+    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
+    def classpathString = classpath.join(":")
+    def output = "util/build/include/fft.h"                     
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.FFT'
+    outputs.files file(output)
+
+    dependsOn classes
+}
+
+task genReadJPGHeader(type:Exec) {
+    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
+    def classpathString = classpath.join(":")
+    def output = "util/build/include/readjpg.h"                     
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.ReadJPG'
+    outputs.files file(output)
+
+    dependsOn classes
+}
+
+allprojects {
+    task cleanNative(type: Delete, group: "Build native code", description: "Deletes the build directory") {
+	destroyables.register(fileTree(project.buildDir))
+	delete project.buildDir
+    }
+}
+
+publishing {
+    publications {
+	mavenJava(MavenPublication) {
+	    from components.java
+	    artifact sourcesJar {
+		classifier "sources"
+	    }
+	    groupId 'nl.junglecomputing.cashmere'
+	    artifactId 'common-source-identification-cashmere-native'
+	    version version
+
+	    pom.withXml {
+		def root = asNode()
+                root.appendNode('url', 'https://github.com/JungleComputing/common-source-identification-cashmere-native.git')
+                root.children().last() + pomConfig
+	    }
+	}
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_NAME')
+    key = System.getenv('BINTRAY_APIKEY')
+    publications = ['mavenJava']
+    pkg {
+	repo = 'JungleComputing-Cashmere'
+	name = 'common-source-identification-cashmere-native'
+	userOrg = "$user"
+	vcsUrl = 'https://github.com/JungleComputing/common-source-identification-cashmere-native.git'
+	licenses = ['Apache-2.0']
+    }
+}

@@ -1,0 +1,37 @@
+#+title: Common Source Identification Cashmere Native
+
+* Introduction
+
+This repository represents the Java interface to the native libraries that the
+application [[https://github.com/JungleComputing/common-source-identification-cashmere][Common Source Identification Cashmere]] needs.  More specifically,
+the application uses [[https://www.libjpeg-turbo.org/][libjpeg-turbo]] to decode JPEG images and the FFT library
+[[https://clmathlibraries.github.io/clFFT/][clFFT]] to perform Fourier transforms.
+
+* Submodules
+
+This repository uses git submodules to check out an unreleased version of clFFT
+that supports radix 17 and 19 kernels.  We can clone the repository and its
+submodule with the following commands:
+
+#+begin_src sh
+git clone https://github.com/JungleComputing/common-source-identification-cashmere-native
+cd common-source-identification-cashmere-native
+git submodule init
+git submodule update
+#+end_src
+
+* Building the software
+
+Currently only Linux is supported.  The ~build.gradle~ file contains
+subprojects for ~clFFT~, ~libjpeg-turbo~, and ~util~.  The clFFT source will be
+obtained using the git submodules, the build script from ~libjpeg-turbo~ will
+download a release from GitHub, and ~util~ contains the Java native code that
+calls these two libraries.  The root project contains Java code that interfaces
+with the ~util~ library.
+
+The project can be built with:
+
+#+begin_src sh
+cd common-source-identification-cashmere-native
+./gradlew build
+#+end_src
