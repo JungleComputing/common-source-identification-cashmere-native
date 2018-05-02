@@ -1,0 +1,3 @@
+[submodule "clFFT/clFFT"]
+	path = clFFT/clFFT
+	url = https://github.com/clMathLibraries/clFFT.git
