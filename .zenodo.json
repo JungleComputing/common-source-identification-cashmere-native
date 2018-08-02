@@ -1,0 +1,17 @@
+{
+    "description": "Common Source Identification Cashmere Native",
+    "license": "Apache-2.0",
+    "title": "Common Source Identification Cashmere Native",
+    "upload_type": "software",
+    "creators": [{
+            "affiliation": "Vrije Universiteit Amsterdam",
+            "name": "Hijma, Pieter"
+        }
+    ],
+    "access_right": "open",
+    "keywords": [
+        "Java",
+        "GPU",
+	"OpenCL"
+    ]
+}
