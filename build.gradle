@@ -5,7 +5,7 @@ plugins {
 }
 
 
-version = '0.1.0'
+version = '0.1.1-SNAPSHOT'
 
 def pomConfig = {
     scm {
@@ -28,7 +28,7 @@ configurations {
 
 dependencies {
     implementation 'nl.junglecomputing.cashmere:jocl:2.0.1'
-    implementation 'nl.junglecomputing.cashmere:cashmere:0.2.0'
+    implementation 'nl.junglecomputing.cashmere:cashmere:0.2.2-SNAPSHOT'
     jocl 'nl.junglecomputing.cashmere:jocl:2.0.1'
 }
 
@@ -38,6 +38,7 @@ repositories {
         // for sbbi-upnplib
 	url 'http://maven.nuiton.org/release'
     }
+    mavenLocal()
 }
 
 jar.dependsOn(':clFFT:buildNative')
@@ -82,7 +83,7 @@ task genFFTHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
     def output = "util/build/include/fft.h"                     
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.FFT'
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.FFT'
     outputs.files file(output)
 
     dependsOn classes
@@ -92,7 +93,7 @@ task genReadJPGHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
     def output = "util/build/include/readjpg.h"                     
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.ReadJPG'
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.ReadJPG'
     outputs.files file(output)
 
     dependsOn classes

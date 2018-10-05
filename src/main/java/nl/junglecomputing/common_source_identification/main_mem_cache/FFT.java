@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package nl.junglecomputing.common_source_identification;
+package nl.junglecomputing.common_source_identification.main_mem_cache;
 
 import org.jocl.cl_event;
 import org.jocl.cl_context;
@@ -22,6 +22,7 @@ import org.jocl.cl_command_queue;
 import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.CLException;
+
 import org.jocl.LibUtils;
 
 // helper class to make calling FFTs a bit easier.
@@ -43,7 +44,7 @@ class FFT {
     }
 
     private static void loadNativeLibrary(String name) {
-	name += "-csicn-0.1.0";
+	name += "-csicn-0.1.1-SNAPSHOT";
 	LibUtils.loadLibrary(name);
     }
     

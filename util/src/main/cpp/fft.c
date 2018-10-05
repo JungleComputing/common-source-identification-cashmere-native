@@ -41,7 +41,7 @@
 clfftPlanHandle planHandle;
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_FFT_initializeFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_main_1mem_1cache_FFT_initializeFFT
    (JNIEnv *env, jclass c, jobject context, jobject queue, jint height, 
     jint width) {
 
@@ -116,7 +116,7 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_FF
 
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_FFT_deinitializeFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_main_1mem_1cache_FFT_deinitializeFFT
         (JNIEnv *env, jclass c) {
 
     cl_int err = 0;
@@ -131,7 +131,7 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_FF
 }
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_FFT_doFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_main_1mem_1cache_FFT_doFFT
     (JNIEnv *env, jclass c, jobject queue, jint h, jint w,
     jobject bufferPtr, jobject tempPtr, jboolean forward, jint num_events_in_wait_list, 
     jobjectArray event_wait_list, jobject event) {
