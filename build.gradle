@@ -43,7 +43,8 @@ repositories {
 
 jar.dependsOn(':clFFT:buildNative')
 jar.dependsOn(':libjpeg-turbo:buildNative')
-jar.dependsOn(':util:buildNative')
+jar.dependsOn(':fft:buildNative')
+jar.dependsOn(':readjpg:buildNative')
 
 jar {
     def suffix = "-csicn-${version}.so"
@@ -56,9 +57,13 @@ jar {
     	    include 'libjpeg.so'
     	    rename 'libjpeg.so', "libjpeg${suffix}"
 	}
-	from("${project(':util').buildDir}") {
-    	    include 'libutil.so'
-    	    rename 'libutil.so', "libutil${suffix}"
+	from("${project(':fft').buildDir}") {
+    	    include 'libfft.so'
+    	    rename 'libfft.so', "libfft${suffix}"
+	}
+	from("${project(':readjpg').buildDir}") {
+    	    include 'libreadjpg.so'
+    	    rename 'libreadjpg.so', "libreadjpg${suffix}"
 	}
     }
 }
@@ -75,15 +80,17 @@ task copyJOCL(type:Copy) {
 	fcd.path = fcd.path.replaceAll(~/lib\/(.*)/, '$1')
 	println fcd.path
     }
-    into project(':util').buildDir
+    into project(':fft').buildDir
 }
 
 
 task genFFTHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
-    def output = "util/build/include/fft.h"                     
+    def output = "fft/build/include/fft.h"
+    def input = "src/main/java/nl/junglecomputing/common_source_identification/main_mem_cache/FFT.java"
     commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.FFT'
+    inputs.files file(input)
     outputs.files file(output)
 
     dependsOn classes
@@ -92,7 +99,8 @@ task genFFTHeader(type:Exec) {
 task genReadJPGHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
-    def output = "util/build/include/readjpg.h"                     
+    def input = "src/main/java/nl/junglecomputing/common_source_identification/main_mem_cache/ReadJPG.java"
+    def output = "readjpg/build/include/readjpg.h"                     
     commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.ReadJPG'
     outputs.files file(output)
 

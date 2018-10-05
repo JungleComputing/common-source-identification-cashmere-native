@@ -7,9 +7,6 @@ task copy(type:Copy) {
 }
 
 task copyLibs(type:Copy) {
-    from("${project(':clFFT').buildDir}/library") {
-	include 'libclFFT.so*'
-    }
     from("${project(':libjpeg-turbo').buildDir}/libjpeg-turbo-1.5.2/.libs") {
 	include 'libjpeg.so*'
     }
@@ -20,9 +17,10 @@ task copyLibs(type:Copy) {
 task buildNative(type:Exec, group: "Build native code", description: "Assembles this project", dependsOn: 'copy') {
     commandLine = ['make']
     workingDir = "$project.buildDir"
-    dependsOn(rootProject.copyJOCL)
-    dependsOn(rootProject.genFFTHeader)
     dependsOn(rootProject.genReadJPGHeader)
     dependsOn(copyLibs)
-    outputs.files("$project.buildDir/libutil.so")
+    inputs.files(copy.outputs.files)
+    inputs.files(copyLibs.outputs.files)
+    inputs.files(rootProject.genReadJPGHeader.outputs.files)
+    outputs.files("$project.buildDir/libreadjpg.so")
 }

@@ -1,0 +1,28 @@
+plugins {
+}
+
+task copy(type:Copy) {
+    from 'src/main/cpp'
+    into project.buildDir
+}
+
+task copyLibs(type:Copy) {
+    from("${project(':clFFT').buildDir}/library") {
+	include 'libclFFT.so*'
+    }
+    into project.buildDir
+}
+
+
+task buildNative(type:Exec, group: "Build native code", description: "Assembles this project", dependsOn: 'copy') {
+    commandLine = ['make']
+    workingDir = "$project.buildDir"
+    dependsOn(rootProject.copyJOCL)
+    dependsOn(rootProject.genFFTHeader)
+    dependsOn(copyLibs)
+    inputs.files(copy.outputs.files)
+    inputs.files(copyLibs.outputs.files)
+    inputs.files(rootProject.copyJOCL.outputs.files)
+    inputs.files(rootProject.genFFTHeader.outputs.files)
+    outputs.files("$project.buildDir/libfft.so")
+}

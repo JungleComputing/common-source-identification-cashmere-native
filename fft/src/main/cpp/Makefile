@@ -1,14 +1,13 @@
 CC		= g++
 INCLUDES	= -Iinclude -I${JAVA_HOME}/include \
-	-I${JAVA_HOME}/include/linux \
-	-I../../clFFT/build/install/include \
-	-I../../libjpeg-turbo/build/libjpeg-turbo-1.5.2
+		  -I${JAVA_HOME}/include/linux \
+		  -I../../clFFT/build/install/include
 CFLAGS		= -Wall -O -fPIC $(INCLUDES)
 LFLAGS		= -Wall -L. -lJOCL_2_0_0-linux-x86_64 -lclFFT \
-		  -ljpeg -shared -o $(SONAME)
-SRC		= fft.c readjpg.c
+		  -shared -o $(SONAME)
+SRC		= fft.c
 OBJ		= $(SRC:.c=.o)
-SONAME		= libutil.so
+SONAME		= libfft.so
 
 DEPFILE		= .depends
 DEPFLAGS	= -Y -f$(DEPFILE) $(INCLUDES)

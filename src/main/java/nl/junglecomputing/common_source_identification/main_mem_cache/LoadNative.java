@@ -16,30 +16,20 @@
 
 package nl.junglecomputing.common_source_identification.main_mem_cache;
 
+import java.util.Set;
+import java.util.HashSet;
 
-import java.io.IOException;
+import org.jocl.LibUtils;
 
-import java.nio.ByteBuffer;
+class LoadNative {
 
-import ibis.cashmere.constellation.Buffer;
-
-// helper class to read in JPG files since the java AWT version is not multithreaded...
-public class ReadJPG {
-
-    static {
-	LoadNative.loadNativeLibrary("jpeg");
-	LoadNative.loadNativeLibrary("readjpg");
-    }
-
-    static native int readJPG(ByteBuffer output, String fileName);
-
-    public static void readJPG(Buffer output, String fileName) 
-	throws IOException {
-
-	int result = readJPG(output.getByteBuffer(), fileName);
-	if (result != 0) {
-	    throw new IOException("readJPG error code: " + result);
+    private static final Set<String> nativeLibrariesLoaded = new HashSet<String>();
+    
+    static void loadNativeLibrary(String name) {
+	if (!nativeLibrariesLoaded.contains(name)) {
+	    nativeLibrariesLoaded.add(name);
+	    String fullName = name + "-csicn-0.1.1-SNAPSHOT";
+	    LibUtils.loadLibrary(fullName);
 	}
     }
-
 }

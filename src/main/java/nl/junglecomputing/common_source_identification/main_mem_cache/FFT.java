@@ -29,25 +29,10 @@ import org.jocl.LibUtils;
 class FFT {
 
     static {
-        loadNativeLibraries();
+	LoadNative.loadNativeLibrary("clFFT");
+	LoadNative.loadNativeLibrary("fft");
     }
 
-    private static boolean nativeLibrariesLoaded = false;
-
-    private static void loadNativeLibraries() {
-	if (!nativeLibrariesLoaded) {
-	    loadNativeLibrary("clFFT");
-	    loadNativeLibrary("jpeg");
-	    loadNativeLibrary("util");
-	    nativeLibrariesLoaded = true;
-	}
-    }
-
-    private static void loadNativeLibrary(String name) {
-	name += "-csicn-0.1.1-SNAPSHOT";
-	LibUtils.loadLibrary(name);
-    }
-    
     // native functions to initialize the FFT library
     static native int initializeFFT(cl_context context, cl_command_queue queue, int height, int width);
     static native int deinitializeFFT();
