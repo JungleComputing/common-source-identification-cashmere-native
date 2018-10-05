@@ -88,8 +88,8 @@ task genFFTHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
     def output = "fft/build/include/fft.h"
-    def input = "src/main/java/nl/junglecomputing/common_source_identification/main_mem_cache/FFT.java"
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.FFT'
+    def input = "src/main/java/nl/junglecomputing/common_source_identification/mc/FFT.java"
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.mc.FFT'
     inputs.files file(input)
     outputs.files file(output)
 

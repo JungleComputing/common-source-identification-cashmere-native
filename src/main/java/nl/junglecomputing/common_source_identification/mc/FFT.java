@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package nl.junglecomputing.common_source_identification.main_mem_cache;
+package nl.junglecomputing.common_source_identification.mc;
 
 import org.jocl.cl_event;
 import org.jocl.cl_context;
@@ -28,7 +28,7 @@ import org.jocl.LibUtils;
 import nl.junglecomputing.common_source_identification.LoadNative;
 
 // helper class to make calling FFTs a bit easier.
-class FFT {
+public class FFT {
 
     static {
 	LoadNative.loadNativeLibrary("clFFT");
@@ -36,15 +36,15 @@ class FFT {
     }
 
     // native functions to initialize the FFT library
-    static native int initializeFFT(cl_context context, cl_command_queue queue, int height, int width);
-    static native int deinitializeFFT();
+    public static native int initializeFFT(cl_context context, cl_command_queue queue, int height, int width);
+    public static native int deinitializeFFT();
 
-    native static int doFFT(cl_command_queue queue, int h, int w,
+    private native static int doFFT(cl_command_queue queue, int h, int w,
             Pointer buffer, Pointer temp, boolean forward,
             int num_events_in_wait_list, cl_event[] event_wait_list,
             cl_event event);
 
-    static void performFFT(cl_command_queue queue, int h, int w,
+    public static void performFFT(cl_command_queue queue, int h, int w,
 	    Pointer buffer, Pointer temp, boolean forward,
 	    int num_events_in_wait_list, cl_event[] event_wait_list,
 	    cl_event event) {
