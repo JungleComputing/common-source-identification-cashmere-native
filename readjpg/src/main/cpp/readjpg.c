@@ -131,7 +131,7 @@ int read_JPEG_file (unsigned char *buffer, const char *filename)
 
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_main_1mem_1cache_ReadJPG_readJPG
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_cpu_ReadJPG_readJPG
 (JNIEnv *env, jclass c, jobject buffer_object, jstring fileName) {
   jboolean copied;
   const char *filename = env->GetStringUTFChars(fileName, &copied);

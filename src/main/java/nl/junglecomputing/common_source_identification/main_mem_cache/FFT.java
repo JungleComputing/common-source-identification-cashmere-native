@@ -25,6 +25,8 @@ import org.jocl.CLException;
 
 import org.jocl.LibUtils;
 
+import nl.junglecomputing.common_source_identification.LoadNative;
+
 // helper class to make calling FFTs a bit easier.
 class FFT {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package nl.junglecomputing.common_source_identification.main_mem_cache;
+package nl.junglecomputing.common_source_identification.cpu;
 
 
 import java.io.IOException;
@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import ibis.cashmere.constellation.Buffer;
+
+import nl.junglecomputing.common_source_identification.LoadNative;
 
 // helper class to read in JPG files since the java AWT version is not multithreaded...
 public class ReadJPG {

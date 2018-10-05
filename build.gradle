@@ -99,9 +99,9 @@ task genFFTHeader(type:Exec) {
 task genReadJPGHeader(type:Exec) {
     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
     def classpathString = classpath.join(":")
-    def input = "src/main/java/nl/junglecomputing/common_source_identification/main_mem_cache/ReadJPG.java"
+    def input = "src/main/java/nl/junglecomputing/common_source_identification/cpu/ReadJPG.java"
     def output = "readjpg/build/include/readjpg.h"                     
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.main_mem_cache.ReadJPG'
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.cpu.ReadJPG'
     outputs.files file(output)
 
     dependsOn classes

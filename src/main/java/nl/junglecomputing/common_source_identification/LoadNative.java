@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package nl.junglecomputing.common_source_identification.main_mem_cache;
+package nl.junglecomputing.common_source_identification;
 
 import java.util.Set;
 import java.util.HashSet;
 
 import org.jocl.LibUtils;
 
-class LoadNative {
+public class LoadNative {
 
     private static final Set<String> nativeLibrariesLoaded = new HashSet<String>();
     
-    static void loadNativeLibrary(String name) {
+    public static void loadNativeLibrary(String name) {
 	if (!nativeLibrariesLoaded.contains(name)) {
 	    nativeLibrariesLoaded.add(name);
 	    String fullName = name + "-csicn-0.1.1-SNAPSHOT";
