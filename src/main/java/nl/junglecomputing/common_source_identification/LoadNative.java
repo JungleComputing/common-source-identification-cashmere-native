@@ -30,9 +30,9 @@ public class LoadNative {
     private static Logger logger = LoggerFactory.getLogger("LoadNative");
     
     public static void loadNativeLibrary(String name) {
-	    if (logger.isDebugEnabled()) {
-		logger.debug("Request to load native library: {}", name);
-	    }
+	if (logger.isDebugEnabled()) {
+	    logger.debug("Request to load native library: {}", name);
+	}
 	if (!nativeLibrariesLoaded.contains(name)) {
 	    nativeLibrariesLoaded.add(name);
 	    String fullName = name + "-csicn-0.1.1-SNAPSHOT";
