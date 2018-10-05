@@ -19,16 +19,26 @@ package nl.junglecomputing.common_source_identification;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.jocl.LibUtils;
 
 public class LoadNative {
 
     private static final Set<String> nativeLibrariesLoaded = new HashSet<String>();
+    private static Logger logger = LoggerFactory.getLogger("LoadNative");
     
     public static void loadNativeLibrary(String name) {
+	    if (logger.isDebugEnabled()) {
+		logger.debug("Request to load native library: {}", name);
+	    }
 	if (!nativeLibrariesLoaded.contains(name)) {
 	    nativeLibrariesLoaded.add(name);
 	    String fullName = name + "-csicn-0.1.1-SNAPSHOT";
+	    if (logger.isDebugEnabled()) {
+		logger.debug("Loading {}", fullName);
+	    }
 	    LibUtils.loadLibrary(fullName);
 	}
     }
