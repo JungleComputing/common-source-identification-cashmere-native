@@ -20,6 +20,7 @@
 #include <CL/opencl.h>
 #include <jni.h>
 
+#include <vector>
 
 #include <CLJNIUtils.hpp>
 #include <PointerUtils.hpp>
@@ -31,14 +32,17 @@
 #include <clFFT.h>
 
 
-/* We need a planHandle
+/* We need a planHandle per device
    For that we need:
      - the nativeQueue
      - the nativeContext
      - height, width
 */
 
-clfftPlanHandle planHandle;
+/* Create a list of plan handles, and matching queues. Note: will not work if passed NULL queue.
+ */
+std::vector<clfftPlanHandle> planHandles;
+std::vector<cl_command_queue> nativeQueues;
 
 
 JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_FFT_initializeFFT
@@ -73,6 +77,8 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
     fflush(stdout);
     return err;
   }
+
+  clfftPlanHandle planHandle;
 
   // Create a default plan for a complex FFT.
   err = clfftCreateDefaultPlan(&planHandle, nativeContext, dim, clLengths);
@@ -111,6 +117,9 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
     return err;
   }
 
+  planHandles.push_back(planHandle);
+  nativeQueues.push_back(nativeQueue);
+
   return err;
 }
 
@@ -121,11 +130,17 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
 
     cl_int err = 0;
 
+    clfftPlanHandle planHandle = planHandles.back();
+    planHandles.pop_back();
+    nativeQueues.pop_back();
+
     err = clfftDestroyPlan( &planHandle );
 
     if (err) return err;
 
-    clfftTeardown();
+    if (planHandles.size() == 0) {
+	clfftTeardown();
+    }
 
     return err;
 }
@@ -154,6 +169,16 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
   if (queue != NULL) {
     nativeQueue = (cl_command_queue) env->GetLongField(queue, NativePointerObject_nativePointer);
   }
+
+  int index = 0;
+  for (unsigned i = 0; i < nativeQueues.size(); i++) {
+    if (nativeQueues[i] == nativeQueue) {
+	index = i;
+	break;
+    }
+  }
+
+  clfftPlanHandle planHandle = planHandles[index];
 
   PointerData *bufferPtrData = initPointerData(env, bufferPtr);
   if (bufferPtrData == NULL) {
