@@ -20,8 +20,17 @@ import org.jocl.cl_event;
 import org.jocl.cl_context;
 import org.jocl.cl_command_queue;
 import org.jocl.CL;
-import org.jocl.Pointer;
 import org.jocl.CLException;
+
+import ibis.cashmere.constellation.Device;
+import ibis.cashmere.constellation.DeviceEvent;
+import ibis.cashmere.constellation.CommandStream;
+import ibis.cashmere.constellation.Pointer;
+
+import ibis.cashmere.constellation.deviceImpl.jocl.OpenCLDevice;
+import ibis.cashmere.constellation.deviceImpl.jocl.OpenCLEvent;
+import ibis.cashmere.constellation.deviceImpl.jocl.OpenCLCommandStream;
+import ibis.cashmere.constellation.deviceImpl.jocl.OpenCLPointer;
 
 import org.jocl.LibUtils;
 
@@ -36,16 +45,20 @@ public class FFT {
     }
 
     // native functions to initialize the FFT library
-    public static native int initializeFFT(cl_context context, cl_command_queue queue, int height, int width);
+    private static native int initializeFFT(cl_context context, cl_command_queue queue, int height, int width);
     public static native int deinitializeFFT();
 
+    public static void initializeFFT(Device d, CommandStream q, int height, int width) {
+        initializeFFT(((OpenCLDevice) d).getContext(), ((OpenCLCommandStream) q).getQueue(), height, width);
+    }
+
     private native static int doFFT(cl_command_queue queue, int h, int w,
-            Pointer buffer, Pointer temp, boolean forward,
+            org.jocl.Pointer buffer, org.jocl.Pointer temp, boolean forward,
             int num_events_in_wait_list, cl_event[] event_wait_list,
             cl_event event);
 
-    public static void performFFT(cl_command_queue queue, int h, int w,
-	    Pointer buffer, Pointer temp, boolean forward,
+    private static void performFFT(cl_command_queue queue, int h, int w,
+	    org.jocl.Pointer buffer, org.jocl.Pointer temp, boolean forward,
 	    int num_events_in_wait_list, cl_event[] event_wait_list,
 	    cl_event event) {
 	int err = doFFT(queue, h, w, buffer, temp, forward, num_events_in_wait_list,
@@ -53,5 +66,26 @@ public class FFT {
 	if (err != 0) {
 	    throw new CLException(CL.stringFor_errorCode(err), err);
 	}
+    }
+    public static DeviceEvent performFFT(CommandStream queue, int h, int w,
+	    Pointer buffer, Pointer temp, boolean forward,
+	    DeviceEvent[] event_wait_list) {
+        cl_event evnt = new cl_event();
+        int len = event_wait_list == null ? 0 : event_wait_list.length;
+        cl_event[] wait_list = null;
+        if (len > 0) {
+            wait_list = new cl_event[len];
+            for (int i = 0; i < len; i++) {
+                wait_list[i] = ((OpenCLEvent) event_wait_list[i]).getCLEvent();
+            }
+        }
+	int err = doFFT(((OpenCLCommandStream) queue).getQueue(), h, w,
+                ((OpenCLPointer)buffer).getPointer(),
+                ((OpenCLPointer)temp).getPointer(),
+                forward, len, wait_list, evnt);
+	if (err != 0) {
+	    throw new CLException(CL.stringFor_errorCode(err), err);
+	}
+        return new OpenCLEvent(evnt);
     }
 }

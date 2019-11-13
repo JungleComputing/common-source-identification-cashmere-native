@@ -5,7 +5,7 @@ plugins {
 }
 
 
-version = '1.1'
+version = '1.2-SNAPSHOT'
 
 def pomConfig = {
     scm {
@@ -28,7 +28,7 @@ configurations {
 
 dependencies {
     implementation 'nl.junglecomputing.cashmere:jocl:2.0.1'
-    implementation 'nl.junglecomputing.cashmere:cashmere:0.3'
+    implementation 'nl.junglecomputing.cashmere:cashmere:0.4-SNAPSHOT'
     jocl 'nl.junglecomputing.cashmere:jocl:2.0.1'
 }
 
