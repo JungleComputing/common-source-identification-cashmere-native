@@ -23,11 +23,13 @@ git submodule update
 * Building the software
 
 Currently only Linux is supported.  The ~build.gradle~ file contains
-subprojects for ~clFFT~, ~libjpeg-turbo~, and ~util~.  The clFFT source will be
-obtained using the git submodules, the build script from ~libjpeg-turbo~ will
-download a release from GitHub, and ~util~ contains the Java native code that
-calls these two libraries.  The root project contains Java code that interfaces
-with the ~util~ library.
+subprojects for ~clFFT~, ~fft~, ~libjpeg-turbo~, and ~readjpg~.  The clFFT source will be
+obtained using the git submodules,
+~fft~ contains the Java native code that calls this library,
+the build script from ~libjpeg-turbo~ will
+download a release from GitHub, and ~readjpg~ contains the Java native code that
+calls this library.  The root project contains Java code that interfaces
+with the ~fft~ and ~readjpg~ libraries.
 
 The project can be built with:
 
