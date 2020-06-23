@@ -4,7 +4,7 @@ plugins {
 repositories {
     ivy {
         url 'https://github.com'
-        layout 'pattern', {
+        patternLayout {
             artifact '/[organisation]/[module]/archive/[revision].[ext]'
         }
     }
