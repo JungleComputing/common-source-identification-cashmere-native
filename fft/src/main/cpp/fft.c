@@ -45,7 +45,7 @@ std::vector<clfftPlanHandle> planHandles;
 std::vector<cl_command_queue> nativeQueues;
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_FFT_initializeFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_opencl_FFT_initializeFFT
    (JNIEnv *env, jclass c, jobject context, jobject queue, jint height, 
     jint width) {
 
@@ -125,7 +125,7 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
 
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_FFT_deinitializeFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_opencl_FFT_deinitializeFFT_1native
         (JNIEnv *env, jclass c) {
 
     cl_int err = 0;
@@ -146,7 +146,7 @@ JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc
 }
 
 
-JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_FFT_doFFT
+JNIEXPORT jint JNICALL Java_nl_junglecomputing_common_1source_1identification_mc_opencl_FFT_doFFT
     (JNIEnv *env, jclass c, jobject queue, jint h, jint w,
     jobject bufferPtr, jobject tempPtr, jboolean forward, jint num_events_in_wait_list, 
     jobjectArray event_wait_list, jobject event) {

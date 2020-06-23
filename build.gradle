@@ -22,12 +22,67 @@ artifacts {
     archives sourcesJar
 }
 
+def static getOsString() {
+    String vendor = System.getProperty("java.vendor");
+    if ("The Android Project" == vendor) {
+        return "android";
+    } else {
+        String osName = System.getProperty("os.name");
+        osName = osName.toLowerCase(Locale.ENGLISH);
+        if (osName.startsWith("windows")) {
+            return "windows";
+        } else if (osName.startsWith("mac os")) {
+            return "apple";
+        } else if (osName.startsWith("linux")) {
+            return "linux";
+        } else if (osName.startsWith("sun")) {
+            return "sun"
+        }
+        return "unknown"
+    }
+}
+
+def static getArchString() {
+    String osArch = System.getProperty("os.arch");
+    osArch = osArch.toLowerCase(Locale.ENGLISH);
+    if ("i386" == osArch || "x86" == osArch || "i686" == osArch) {
+        return "x86";
+    } else if (osArch.startsWith("amd64") || osArch.startsWith("x86_64")) {
+        return "x86_64";
+    } else if (osArch.startsWith("arm64")) {
+        return "arm64";
+    } else if (osArch.startsWith("arm")) {
+        return "arm";
+    } else if ("ppc" == osArch || "powerpc" == osArch) {
+        return "ppc";
+    } else if (osArch.startsWith("ppc")) {
+        return "ppc_64";
+    } else if (osArch.startsWith("sparc")) {
+        return "sparc";
+    } else if (osArch.startsWith("mips64")) {
+        return "mips64";
+    } else if (osArch.startsWith("mips")) {
+        return "mips";
+    } else if (osArch.contains("risc")) {
+        return "risc";
+    }
+    return "unknown";
+}
+
 configurations {
     jocl
 }
 
 dependencies {
-    implementation 'nl.junglecomputing.cashmere:jocl:2.0.1'
+    def classifier = getOsString()+'-'+getArchString()
+    compile (group: 'org.jcuda', name: 'jcuda', version: '0.9.0d',){
+      transitive=false
+    }
+    compile (group: 'org.jcuda', name: 'jcufft', version: '0.9.0d',){
+      transitive=false
+    }
+    compile group: 'org.jcuda', name: 'jcuda-natives', classifier: classifier, version: '0.9.0d'
+    compile group: 'org.jcuda', name: 'jcufft-natives', classifier: classifier, version: '0.9.0d'
     implementation 'nl.junglecomputing.cashmere:cashmere:0.4-SNAPSHOT'
     jocl 'nl.junglecomputing.cashmere:jocl:2.0.1'
 }
@@ -37,30 +92,31 @@ repositories {
     mavenLocal()
 }
 
-jar.dependsOn(':clFFT:buildNative')
-jar.dependsOn(':libjpeg-turbo:buildNative')
 jar.dependsOn(':fft:buildNative')
 jar.dependsOn(':readjpg:buildNative')
+
+jar.dependsOn(':clFFT:buildNative')
+jar.dependsOn(':libjpeg-turbo:buildNative')
 
 jar {
     def suffix = "-csicn-${version}.so"
     into("lib") {
-    	from("${project(':clFFT').buildDir}/install/lib64") {
-    	    include 'libclFFT.so'
-	    rename 'libclFFT.so', "libclFFT${suffix}"
-    	}
 	from("${project(':libjpeg-turbo').buildDir}/libjpeg-turbo-1.5.2/.libs") {
     	    include 'libjpeg.so'
     	    rename 'libjpeg.so', "libjpeg${suffix}"
-	}
-	from("${project(':fft').buildDir}") {
-    	    include 'libfft.so'
-    	    rename 'libfft.so', "libfft${suffix}"
 	}
 	from("${project(':readjpg').buildDir}") {
     	    include 'libreadjpg.so'
     	    rename 'libreadjpg.so', "libreadjpg${suffix}"
 	}
+	from("${project(':fft').buildDir}") {
+    	    include 'libfft.so'
+    	    rename 'libfft.so', "libfft${suffix}"
+	}
+    	from("${project(':clFFT').buildDir}/install/lib64") {
+    	    include 'libclFFT.so'
+	    rename 'libclFFT.so', "libclFFT${suffix}"
+    	}
     }
 }
 
@@ -81,11 +137,11 @@ task copyJOCL(type:Copy) {
 
 
 task genFFTHeader(type:Exec) {
-    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
+    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDirs
     def classpathString = classpath.join(":")
     def output = "fft/build/include/fft.h"
-    def input = "src/main/java/nl/junglecomputing/common_source_identification/mc/FFT.java"
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.mc.FFT'
+    def input = "src/main/java/nl/junglecomputing/common_source_identification/mc/opencl/FFT.java"
+    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.mc.opencl.FFT'
     inputs.files file(input)
     outputs.files file(output)
 
@@ -93,11 +149,12 @@ task genFFTHeader(type:Exec) {
 }
 
 task genReadJPGHeader(type:Exec) {
-    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDir
+    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDirs
     def classpathString = classpath.join(":")
     def input = "src/main/java/nl/junglecomputing/common_source_identification/cpu/ReadJPG.java"
     def output = "readjpg/build/include/readjpg.h"                     
     commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.cpu.ReadJPG'
+    inputs.files file(input)
     outputs.files file(output)
 
     dependsOn classes

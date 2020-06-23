@@ -8,9 +8,9 @@ task cmake(type:Exec) {
     inputs.file("clFFT/src/CMakeLists.txt")
     inputs.file("clFFT/src/clFFTConfig.cmake.in")
     inputs.file("clFFT/src/clFFTConfigVersion.cmake.in")
-    inputs.file("FindclFFT.cmake");
-    inputs.file("FindFFTW.cmake");
-    inputs.file("gtest.cmake");
+    inputs.file("clFFT/src/FindclFFT.cmake");
+    inputs.file("clFFT/src/FindFFTW.cmake");
+    inputs.file("clFFT/src/gtest.cmake");
     outputs.files(fileTree(project.buildDir) {
 		      include "**/*.cmake"
 		  });
