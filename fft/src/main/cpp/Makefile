@@ -3,7 +3,7 @@ INCLUDES	= -Iinclude -I${JAVA_HOME}/include \
 		  -I${JAVA_HOME}/include/linux \
 		  -I../../clFFT/build/install/include
 CFLAGS		= -Wall -O -fPIC $(INCLUDES)
-LFLAGS		= -Wall -L. -lJOCL_2_0_0-linux-x86_64 -lclFFT \
+LFLAGS		= -Wall -L. -lJOCL_2_0_4-linux-x86_64 -lclFFT \
 		  -shared -o $(SONAME)
 SRC		= fft.c
 OBJ		= $(SRC:.c=.o)

@@ -5,7 +5,7 @@ plugins {
 }
 
 
-version = '1.2-SNAPSHOT'
+version = '1.2'
 
 def pomConfig = {
     scm {
@@ -69,8 +69,10 @@ def static getArchString() {
     return "unknown";
 }
 
+
 configurations {
     jocl
+    cuda
 }
 
 dependencies {
@@ -83,13 +85,13 @@ dependencies {
     }
     compile group: 'org.jcuda', name: 'jcuda-natives', classifier: classifier, version: '0.9.0d'
     compile group: 'org.jcuda', name: 'jcufft-natives', classifier: classifier, version: '0.9.0d'
-    implementation 'nl.junglecomputing.cashmere:cashmere:0.4-SNAPSHOT'
-    jocl 'nl.junglecomputing.cashmere:jocl:2.0.1'
+    implementation 'nl.junglecomputing.cashmere:cashmere:0.4'
+    jocl 'org.jocl:jocl:2.0.4'
 }
 
 repositories {
-    jcenter()
     mavenLocal()
+    mavenCentral()
 }
 
 jar.dependsOn(':fft:buildNative')
@@ -122,7 +124,7 @@ jar {
 
 task copyJOCL(type:Copy) {
     def dir = 'lib'
-    def file = 'libJOCL_2_0_0-linux-x86_64.so'
+    def file = 'libJOCL_2_0_4-linux-x86_64.so'
     def fullpath = "$dir/$file"
     from({ zipTree(configurations.jocl.singleFile) }) {
         include fullpath
@@ -135,30 +137,27 @@ task copyJOCL(type:Copy) {
     into project(':fft').buildDir
 }
 
-
-task genFFTHeader(type:Exec) {
-    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDirs
-    def classpathString = classpath.join(":")
-    def output = "fft/build/include/fft.h"
-    def input = "src/main/java/nl/junglecomputing/common_source_identification/mc/opencl/FFT.java"
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.mc.opencl.FFT'
-    inputs.files file(input)
-    outputs.files file(output)
-
-    dependsOn classes
+void createTask(String name, String input, String outputDir, String dest) {
+   task ("javah" + name, type:Exec) {
+     dependsOn classes
+     def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDirs
+     def classpathString = classpath.join(":")
+     commandLine "javac", "-d", project.buildDir, "-h", outputDir, "-classpath", classpathString, input
+     inputs.files file(input)
+   }
+   task ("gen" + name + "Header", type: Copy) {
+     dependsOn("javah" + name)
+     from outputDir
+     into outputDir
+     include 'nl_junglecomputing_common_source_identification*.h'
+     rename("nl_junglecomputing_common_source_identification.*.h", "$dest")
+     outputs.files file(outputDir + "/$dest")
+   }
 }
 
-task genReadJPGHeader(type:Exec) {
-    def classpath = configurations.runtimeClasspath + sourceSets.main.output.classesDirs
-    def classpathString = classpath.join(":")
-    def input = "src/main/java/nl/junglecomputing/common_source_identification/cpu/ReadJPG.java"
-    def output = "readjpg/build/include/readjpg.h"                     
-    commandLine "javah", "-o", output, "-classpath", classpathString, 'nl.junglecomputing.common_source_identification.cpu.ReadJPG'
-    inputs.files file(input)
-    outputs.files file(output)
-
-    dependsOn classes
-}
+createTask("FFT", "src/main/java/nl/junglecomputing/common_source_identification/mc/opencl/FFT.java", "fft/build/include", "fft.h")
+    
+createTask("ReadJPG", "src/main/java/nl/junglecomputing/common_source_identification/cpu/ReadJPG.java", "readjpg/build/include", "readjpg.h")
 
 allprojects {
     task cleanNative(type: Delete, group: "Build native code", description: "Deletes the build directory") {
