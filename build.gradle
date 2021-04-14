@@ -1,25 +1,30 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.8.0'
+    id 'maven'
+    id 'signing'
 }
-
 
 version = '1.2'
-
-def pomConfig = {
-    scm {
-        url "https://github.com/JungleComputing/common-source-identification-cashmere-native.git"
-    }
-}
+group = 'nl.junglecomputing.cashmere'
+archivesBaseName = 'common-source-identification-cashmere-native'
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
+javadoc.failOnError = false
+javadoc.options.memberLevel = JavadocMemberLevel.PUBLIC
+javadoc.options.links "https://JungleComputing.github.io/Constellation"
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
 
 def static getOsString() {
@@ -75,6 +80,7 @@ configurations {
     cuda
 }
 
+// Note: if you change the JOCL version number, also do so in the copyJOCL task.
 dependencies {
     def classifier = getOsString()+'-'+getArchString()
     compile (group: 'org.jcuda', name: 'jcuda', version: '0.9.0d',){
@@ -166,35 +172,61 @@ allprojects {
     }
 }
 
-publishing {
-    publications {
-	mavenJava(MavenPublication) {
-	    from components.java
-	    artifact sourcesJar {
-		classifier "sources"
-	    }
-	    groupId 'nl.junglecomputing.cashmere'
-	    artifactId 'common-source-identification-cashmere-native'
-	    version version
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-	    pom.withXml {
-		def root = asNode()
-                root.appendNode('url', 'https://github.com/JungleComputing/common-source-identification-cashmere-native.git')
-                root.children().last() + pomConfig
-	    }
-	}
+      repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      // repository(url: "file://${System.properties['user.home']}/.m2/repository") {
+      // }
+
+      signing {
+	sign configurations.archives
+      }
+
+      snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+
+        name 'Common-source-identification-cashmere-native'
+        packaging 'jar'
+        description 'Common-source-identification-cashmere-native is a support library for the common-source-identification-cashmere application; it interfaces to the native libraries to decode JPEG images and OpenCL FFT.'
+
+        url 'https://github.com/junglecomputing/common-source-identification-cashmere-native'
+
+        scm {
+          connection 'scm:git:git://github.com/junglecomputing/common-source-identification-cashmere-native.git'
+          developerConnection 'scm:git:ssh://github.com:junglecomputing/common-source-identification-cashmere-native.git'
+          url 'https://github.com/junglecomputing/common-source-identification-cashmere-native/tree/master'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            name = 'Pieter Hijma'
+            organization = 'Vrije Universiteit Amsterdam'
+            url = 'https://github.com/pieterhijma'
+          }
+          developer {
+            name = 'Ceriel Jacobs'
+            organization = 'Vrije Universiteit Amsterdam'
+            url = 'https://github.com/CerielJacobs'
+          }
+        }
+      }
     }
+  }
 }
 
-bintray {
-    user = System.getenv('BINTRAY_NAME')
-    key = System.getenv('BINTRAY_APIKEY')
-    publications = ['mavenJava']
-    pkg {
-	repo = 'JungleComputing-Cashmere'
-	name = 'common-source-identification-cashmere-native'
-	userOrg = "$user"
-	vcsUrl = 'https://github.com/JungleComputing/common-source-identification-cashmere-native.git'
-	licenses = ['Apache-2.0']
-    }
-}

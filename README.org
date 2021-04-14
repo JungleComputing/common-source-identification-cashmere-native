@@ -7,7 +7,7 @@ application [[https://github.com/JungleComputing/common-source-identification-ca
 the application uses [[https://www.libjpeg-turbo.org/][libjpeg-turbo]] to decode JPEG images and the FFT library
 [[https://clmathlibraries.github.io/clFFT/][clFFT]] to perform Fourier transforms.
 
-This version is for OpenCL. There also exists version for CUDA, which is called ~common-source-identification-cashmere-cuda~.
+This version is for both OpenCL and Cuda.
 
 * Submodules
 

@@ -35,7 +35,7 @@ public class LoadNative {
 	}
 	if (!nativeLibrariesLoaded.contains(name)) {
 	    nativeLibrariesLoaded.add(name);
-	    String fullName = name + "-csicn-1.2-SNAPSHOT";
+	    String fullName = name + "-csicn-1.2";
 	    if (logger.isDebugEnabled()) {
 		logger.debug("Loading {}", fullName);
 	    }
